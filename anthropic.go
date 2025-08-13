@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/anthropics/anthropic-sdk-go"
 )
 
-func anthropic_() {
+func anthropic_agent() {
 	client := anthropic.NewClient()
 
 	ctx := context.Background()
@@ -20,7 +21,6 @@ func anthropic_() {
 	take_input := true
 
 	for {
-		scanner := bufio.NewScanner(os.Stdin)
 		fmt.Println("Chat (Press Ctrl-C to quit)")
 
 		messages := []anthropic.MessageParam{}
@@ -28,15 +28,21 @@ func anthropic_() {
 		for {
 			if take_input {
 				fmt.Print("> ")
-				// doesn't work on multi-line
-				if !scanner.Scan() {
+
+				reader := bufio.NewReader(os.Stdin)
+				input, err := reader.ReadString('\n;')
+				if err != nil {
 					break
 				}
-				line := scanner.Text()
-
-				// fails if line is empty.
+				
+				input = strings.TrimSpace(input)
+				
+				if input == "" {
+					continue
+				}
+			
 				messages = append(messages,
-					anthropic.NewUserMessage(anthropic.NewTextBlock(line)))
+					anthropic.NewUserMessage(anthropic.NewTextBlock(input)))
 			}
 
 			message, err := client.Messages.New(ctx, anthropic.MessageNewParams{
@@ -85,7 +91,6 @@ func anthropic_() {
 				}
 			}
 
-			// the response might have a tool call.
 			if len(toolResults) == 0 {
 				take_input = true
 			} else {
@@ -112,10 +117,12 @@ func getTools() []anthropic.ToolUnionParam {
 					Required: []string{"location"},
 					Type:     "object",
 				},
-			}},
+			},
+		},
 	}
 }
 
+// TODO - create a RAG tool.
 func getWeather(location string) string {
 	return "60.0"
 }

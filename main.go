@@ -1,5 +1,5 @@
 package main
 
 func main() {
-	anthropic_()
+	anthropic_agent()
 }

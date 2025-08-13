@@ -11,7 +11,7 @@ import (
 	"github.com/tmc/langchaingo/llms/anthropic"
 )
 
-func langchain_() {
+func langchain_agent() {
 	llm, err := anthropic.New(anthropic.WithModel("claude-3-haiku-20240307"))
 	if err != nil {
 		log.Fatal(err)
